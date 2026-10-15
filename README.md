@@ -93,25 +93,25 @@ Implement **both** cubic Bézier constructions independently and show that they 
 
 ### Method A: cubic Bézier formula
 
-For control points \(b_0,b_1,b_2,b_3\), implement the cubic Bernstein polynomial directly:
+For control points $b_0,b_1,b_2,b_3$, implement the cubic Bernstein polynomial directly:
 
 $$
 C(t)=(1-t)^3b_0+3t(1-t)^2b_1+3t^2(1-t)b_2+t^3b_3,
 \qquad 0\le t\le1.
 $$
 
-The program evaluates the *x* and *y* coordinates separately inside `cubic_bezier()`. The endpoints satisfy \(C(0)=b_0\) and \(C(1)=b_3\); \(b_1\) and \(b_2\) control the departure and arrival directions.
+The program evaluates the *x* and *y* coordinates separately inside `cubic_bezier()`. The endpoints satisfy $C(0)=b_0$ and $C(1)=b_3$; $b_1$ and $b_2$ control the departure and arrival directions.
 
 ### Method B: midpoint / de Casteljau subdivision
 
-`split_bezier_half()` performs repeated midpoint interpolation at **\(t=0.5\)**:
+`split_bezier_half()` performs repeated midpoint interpolation at **$t=0.5$**:
 
-1. First level: \(m_{01}=(b_0+b_1)/2\), \(m_{12}=(b_1+b_2)/2\), \(m_{23}=(b_2+b_3)/2\).
-2. Second level: \(m_{012}=(m_{01}+m_{12})/2\) and \(m_{123}=(m_{12}+m_{23})/2\).
-3. Final midpoint: \(m=(m_{012}+m_{123})/2\).
-4. The two subdivided cubics have control polygons \([b_0,m_{01},m_{012},m]\) and \([m,m_{123},m_{23},b_3]\).
+1. First level: $m_{01}=(b_0+b_1)/2$, $m_{12}=(b_1+b_2)/2$, $m_{23}=(b_2+b_3)/2$.
+2. Second level: $m_{012}=(m_{01}+m_{12})/2$ and $m_{123}=(m_{12}+m_{23})/2$.
+3. Final midpoint: $m=(m_{012}+m_{123})/2$.
+4. The two subdivided cubics have control polygons $[b_0,m_{01},m_{012},m]$ and $[m,m_{123},m_{23},b_3]$.
 
-`midpoint_polyline()` recursively applies that split to a specified `depth`, then joins the resulting sub-curve **endpoints** with straight segments. At depth \(d\), the approximation contains \(2^d\) line segments and \(2^d+1\) vertices.
+`midpoint_polyline()` recursively applies that split to a specified `depth`, then joins the resulting sub-curve **endpoints** with straight segments. At depth $d$, the approximation contains $2^d$ line segments and $2^d+1$ vertices.
 
 ### Reference experiment
 
@@ -119,12 +119,12 @@ The static experiment uses a strongly curved control polygon covering most of th
 
 | Control point | x | y |
 | --- | ---: | ---: |
-| \(b_0\) | 80 | 450 |
-| \(b_1\) | 180 | 100 |
-| \(b_2\) | 620 | 100 |
-| \(b_3\) | 720 | 450 |
+| $b_0$ | 80 | 450 |
+| $b_1$ | 180 | 100 |
+| $b_2$ | 620 | 100 |
+| $b_3$ | 720 | 450 |
 
-For the **shallow depth \(d=2\)**, the four line segments touch the Bézier curve at the endpoints of the four sub-curves, but visibly depart from the orange curve between those points.
+For the **shallow depth $d=2$**, the four line segments touch the Bézier curve at the endpoints of the four sub-curves, but visibly depart from the orange curve between those points.
 
 ![Part 1.1: Cubic formula and midpoint-construction polyline, depth 2](part1_1_overlay.png)
 
@@ -134,34 +134,34 @@ For the **shallow depth \(d=2\)**, the four line segments touch the Bézier curv
 
 ### Goal and required measurement direction
 
-Measure how well the midpoint-generated polyline \(L_d\) approximates the formula curve \(C\) as subdivision depth \(d\) increases.
+Measure how well the midpoint-generated polyline $L_d$ approximates the formula curve $C$ as subdivision depth $d$ increases.
 
 The required error goes **from sampled points on the formula curve to their nearest *finite line segment*** of the midpoint polyline:
 
 $$
 E_d=\max_{p\in C_{\mathrm{sampled}}}\;\min_{s\in L_d}
-\operatorname{dist}(p,s).
+\mathrm{dist}(p,s).
 $$
 
 This is **not** a maximum distance from polyline vertices to the formula curve, nor a nearest-vertex approximation.
 
-For a query point \(p\) and segment from \(a\) to \(b\), `point_to_segment_distance()` computes:
+For a query point $p$ and segment from $a$ to $b$, `point_to_segment_distance()` computes:
 
 $$
 \begin{aligned}
-u&=\operatorname{clamp}\!\left(\frac{(p-a)\cdot(b-a)}{\lVert b-a\rVert^2},0,1\right),\\
+u&=\mathrm{clamp}\!\left(\frac{(p-a)\cdot(b-a)}{\lVert b-a\rVert^2},0,1\right),\\
 q&=a+u(b-a),\\
-\operatorname{dist}(p,[a,b])&=\lVert p-q\rVert.
+\mathrm{dist}(p,[a,b])&=\lVert p-q\rVert.
 \end{aligned}
 $$
 
-If \(a=b\), the implementation uses the Euclidean distance from \(p\) to \(a\), avoiding division by zero.
+If $a=b$, the implementation uses the Euclidean distance from $p$ to $a$, avoiding division by zero.
 
 ### Sampling precision
 
 To prevent undersampling from dominating the measurement, `sample_formula_curve()`:
 
-1. Samples \(C(t)\) on a uniform parameter grid, initially using 2,000 intervals.
+1. Samples $C(t)$ on a uniform parameter grid, initially using 2,000 intervals.
 2. Measures the largest Euclidean spacing between consecutive formula-curve samples.
 3. Doubles the number of intervals until **every consecutive sample spacing is strictly less than 0.1 px**.
 4. Uses that refined point set for **every depth** in the same experiment.
@@ -170,9 +170,9 @@ For the fixed reference curve, the resulting sample count was **16,001 points**,
 
 ### Actual measured results
 
-The following values were regenerated by executing the included algorithms with the fixed control points listed in Experiment 1. The last row is the **first depth** satisfying \(E_d<0.5\) px.
+The following values were regenerated by executing the included algorithms with the fixed control points listed in Experiment 1. The last row is the **first depth** satisfying $E_d<0.5$ px.
 
-| Depth \(d\) | Polyline segments | Max. error \(E_d\) (px) | Reduction factor \(E_{d-1}/E_d\) |
+| Depth $d$ | Polyline segments | Max. error $E_d$ (px) | Reduction factor $E_{d-1}/E_d$ |
 | ---: | ---: | ---: | ---: |
 | 0 | 1 | 262.500000 | — |
 | 1 | 2 | 71.113096 | 3.6913 |
@@ -181,7 +181,7 @@ The following values were regenerated by executing the included algorithms with 
 | 4 | 16 | 1.229921 | 3.9602 |
 | **5** | **32** | **0.308761** | **3.9834** |
 
-**Threshold conclusion:** the **minimum qualifying subdivision depth is 5** because \(E_4=1.229921\) px is not below 0.5 px, whereas \(E_5=0.308761\) px is.
+**Threshold conclusion:** the **minimum qualifying subdivision depth is 5** because $E_4=1.229921$ px is not below 0.5 px, whereas $E_5=0.308761$ px is.
 
 ![Part 1.2: Error by subdivision depth with the 0.5-pixel threshold](part1_2_convergence.png)
 
@@ -191,7 +191,9 @@ The following values were regenerated by executing the included algorithms with 
 
 The error approaches an approximately **fourfold reduction per level**:
 
-$$E_{d+1}\approx E_d/4.$$
+$$
+E_{d+1}\approx E_d/4.
+$$
 
 This matches the expected behavior of sufficiently fine piecewise-linear approximations to a smooth curve when each subdivision approximately halves the local parameter span.
 
@@ -199,7 +201,7 @@ This matches the expected behavior of sufficiently fine piecewise-linear approxi
 
 No. The observed reduction factor is **3.6913** from depth 0 to 1, **3.7460** from 1 to 2, and becomes **3.9834** from depth 4 to 5. The deeper levels follow the approximately fourfold pattern more closely.
 
-**Q3. What does midpoint construction enable that a predetermined grid of \(t\)-samples does not directly provide?**
+**Q3. What does midpoint construction enable that a predetermined grid of $t$-samples does not directly provide?**
 
 **Adaptive local refinement:** subdivision produces separate child Bézier curves, allowing an algorithm to subdivide only those portions whose control polygons are insufficiently flat or whose estimated error exceeds a threshold. This avoids having to choose a single uniform sampling density for the whole curve in advance.
 
@@ -228,21 +230,21 @@ Each row shows the four **control points** of one cubic, **not** four points con
 
 **One-line explanation of the corner:** The second join is a corner because the incoming and outgoing direction lines are **not collinear**, producing different tangent directions at the shared endpoint.
 
-For example, the incoming and outgoing handle vectors there are \((50,130)\) and \((130,40)\), which are not parallel.
+For example, the incoming and outgoing handle vectors there are $(50,130)$ and $(130,40)$, which are not parallel.
 
 ### Equal-length versus unequal-length direction lines
 
 Chapter 4 describes a smooth join using **collinear** control points with **equal-length** direction lines. We isolate the length condition while **keeping both direction lines collinear**.
 
-Let \(P_3=Q_0=J\) be the shared point between the first and second cubic. Their endpoint derivatives are:
+Let $P_3=Q_0=J$ be the shared point between the first and second cubic. Their endpoint derivatives are:
 
 $$
 C_1'(1)=3(P_3-P_2),\qquad C_2'(0)=3(Q_1-Q_0).
 $$
 
-The experiments keep the join at \(J=(280,310)\) and the incoming direction control point at \(P_2=(220,310)\).
+The experiments keep the join at $J=(280,310)$ and the incoming direction control point at $P_2=(220,310)$.
 
-| Comparison | Outgoing direction point \(Q_1\) | Incoming handle | Outgoing handle | Continuity at the join |
+| Comparison | Outgoing direction point $Q_1$ | Incoming handle | Outgoing handle | Continuity at the join |
 | --- | --- | ---: | ---: | --- |
 | **Equal length** | (340, 310) | 60 px | 60 px | **C¹** (and G¹) |
 | **Unequal length** | (460, 310) | 60 px | 180 px | **G¹**, but **not C¹** |
@@ -259,8 +261,8 @@ The experiments keep the join at \(J=(280,310)\) and the incoming direction cont
 
 Equal handle lengths, together with collinearity and the consistent traversal direction, make the one-sided **first derivative vectors equal** for these cubic parameterizations:
 
-- Equal-length case: \(C_1'(1)=(180,0)=C_2'(0)\), satisfying **C¹ parametric continuity**.
-- Unequal-length case: \(C_1'(1)=(180,0)\) and \(C_2'(0)=(540,0)\). The directions agree, but the derivative magnitudes differ; it is **G¹ but not C¹**.
+- Equal-length case: $C_1'(1)=(180,0)=C_2'(0)$, satisfying **C¹ parametric continuity**.
+- Unequal-length case: $C_1'(1)=(180,0)$ and $C_2'(0)=(540,0)$. The directions agree, but the derivative magnitudes differ; it is **G¹ but not C¹**.
 
 In short, **collinearity** is enough for a visually smooth tangent transition, whereas **equal length** also matches the tangent *magnitude* (parameterized first derivative) at the join. Neither statement by itself guarantees **C²** continuity.
 
@@ -268,7 +270,7 @@ In short, **collinearity** is enough for a visually smooth tangent transition, w
 
 ### Main window — `Interactive Bézier Editor`
 
-1. **Click four times** inside the canvas to place \(b_0,b_1,b_2,b_3\) in order. The orange formula curve and red midpoint polyline appear after the fourth point.
+1. **Click four times** inside the canvas to place $b_0,b_1,b_2,b_3$ in order. The orange formula curve and red midpoint polyline appear after the fourth point.
 2. **Drag any control point** to update the curve and control polygon in real time.
 3. Use the **Depth** slider (0–8) to change the midpoint-polyline approximation. This is a visual control; it does not replace the separate convergence analysis.
 4. Press **R** while the plot has keyboard focus to clear the points and begin again.
