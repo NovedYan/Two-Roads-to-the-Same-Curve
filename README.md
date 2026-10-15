@@ -362,7 +362,3 @@ This section maps the laboratory to the **Part 1** questions while keeping the r
 - The implementation uses **uniform-depth** subdivision. Flatness-guided **adaptive subdivision** is a logical next experiment but is not implemented here.
 - The repository currently documents **Bézier geometry and joins**. Pixel-level filling, winding rules, and anti-aliasing are outside the scope of this milestone.
 - The work is organized as a transparent progression from static mathematical tests to interactive visualization, with reference datasets kept available for independent verification.
-
----
-
-**Reference material:** *Multimedia Systems*, Chapter 4 — *Vector Graphics* (Bézier Curves, Mid-point Construction, Smooth Joins, Paths), and the associated **Part 1: Two Roads to the Same Curve** specification. Course materials are referenced for context and are **not redistributed** by this repository.
