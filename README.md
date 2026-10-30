@@ -4,28 +4,28 @@
 
 This project begins with **static numerical experiments** and extends them into an **interactive Bézier editor**. The geometry is computed by the project's own Python functions; Matplotlib is used to display calculated points, polylines, measurements, and editing controls.
 
-The current milestone covers the three experiments in **Part 1 — *Two Roads to the Same Curve*** of a Multimedia Systems assignment, based on the Bézier curve and smooth-join material in **Chapter 4: Vector Graphics**. The same program is intended to be understandable and reproducible outside the course context.
+The laboratory contains three focused experiments: independent curve constructions, quantitative convergence testing, and tangent continuity at curve joins. All three use the same geometry routines and can be reproduced with fixed reference inputs or explored interactively.
 
 ## Contents
 
 1. [Features and experiments](#features-and-experiments)
 2. [Requirements and installation](#requirements-and-installation)
 3. [Run the laboratory](#run-the-laboratory)
-4. [Experiment 1 — Two constructions of one curve (Part 1.1)](#experiment-1--two-constructions-of-one-curve-part-11)
-5. [Experiment 2 — Convergence and error measurement (Part 1.2)](#experiment-2--convergence-and-error-measurement-part-12)
-6. [Experiment 3 — Smooth and corner joins (Part 1.3)](#experiment-3--smooth-and-corner-joins-part-13)
+4. [Experiment 1 — Two constructions of one curve](#experiment-1--two-constructions-of-one-curve)
+5. [Experiment 2 — Convergence and error measurement](#experiment-2--convergence-and-error-measurement)
+6. [Experiment 3 — Smooth and corner joins](#experiment-3--smooth-and-corner-joins)
 7. [Interactive editor guide](#interactive-editor-guide)
 8. [Generated files and reproducibility](#generated-files-and-reproducibility)
-9. [Coursework checklist and conclusions](#coursework-checklist-and-conclusions)
+9. [Verification checklist and conclusions](#verification-checklist-and-conclusions)
 10. [Implementation boundaries and future work](#implementation-boundaries-and-future-work)
 
 ## Features and experiments
 
-| Experiment | Static study | Interactive capability | Evidence |
-| --- | --- | --- | --- |
-| **1 — Curve construction** | Cubic Bernstein formula versus recursive midpoint construction | Click four control points; drag them; adjust subdivision depth | Overlaid formula curve and subdivision polyline |
-| **2 — Convergence** | Measure one-directional maximum point-to-polyline error | Analyze the currently edited curve | Per-depth error, reduction ratios, threshold, PNG/CSV/JSON |
-| **3 — Curve joins** | Three connected cubic segments; equal- versus unequal-length handles | Drag join/control points; switch between **C¹** and **G¹** handle constraints | Open-path figure and side-by-side comparison |
+| Experiment                 | Static study                                                 | Interactive capability                                       | Evidence                                                   |
+| -------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------- |
+| **1 — Curve construction** | Cubic Bernstein formula versus recursive midpoint construction | Click four control points; drag them; adjust subdivision depth | Overlaid formula curve and subdivision polyline            |
+| **2 — Convergence**        | Measure one-directional maximum point-to-polyline error      | Analyze the currently edited curve                           | Per-depth error, reduction ratios, threshold, PNG/CSV/JSON |
+| **3 — Curve joins**        | Three connected cubic segments; equal- versus unequal-length handles | Drag join/control points; switch between **C¹** and **G¹** handle constraints | Open-path figure and side-by-side comparison               |
 
 The development is organized into two reproducible stages:
 
@@ -38,14 +38,14 @@ Both stages live in **one program, `main.py`**.
 
 ### Software and environment
 
-| Component | Requirement / reference environment |
-| --- | --- |
-| Operating system | Windows 10/11 for the walkthrough; a desktop OS with an available Matplotlib GUI backend is required for interactive use |
-| Python | **3.10 or newer** |
-| Python package | `matplotlib` (its dependencies are installed by pip) |
-| Development tools | VS Code and its Python extension are optional |
-| Canvas | **800 × 600 coordinate units**, interpreted as pixels for the error experiment; *y* increases downward |
-| Special environment variables | **None required** for normal interactive use |
+| Component                     | Requirement / reference environment                          |
+| ----------------------------- | ------------------------------------------------------------ |
+| Operating system              | Windows 10/11 for the walkthrough; a desktop OS with an available Matplotlib GUI backend is required for interactive use |
+| Python                        | **3.10 or newer**                                            |
+| Python package                | `matplotlib` (its dependencies are installed by pip)         |
+| Development tools             | VS Code and its Python extension are optional                |
+| Canvas                        | **800 × 600 coordinate units**, interpreted as pixels for the error experiment; *y* increases downward |
+| Special environment variables | **None required** for normal interactive use                 |
 
 For reproducibility, the fixed-reference plots and numerical table in this README were regenerated using **CPython 3.13.5** and **Matplotlib 3.10.8** with the noninteractive `Agg` backend. The GUI walkthrough targets a local Windows desktop using Python 3.10+; it must be run with a graphical backend, not `Agg`.
 
@@ -80,12 +80,12 @@ On macOS or Linux, use `python3 -m venv .venv`, `source .venv/bin/activate`, `py
 ### What happens at launch?
 
 1. The program regenerates **four static reference figures** (curve overlay, convergence plot, three-segment open path, and equal/unequal comparison).
-2. It prints baseline sampling accuracy and depth-by-depth convergence results in the terminal.
+2. It writes the fixed-reference convergence data to `part1_2_static_convergence.csv` and `part1_2_static_analysis.json` and prints sampling accuracy and depth-by-depth results in the terminal.
 3. It opens the **Interactive Bézier Editor** for direct manipulation of the curve.
 
-The generated files are placed **beside `main.py`**. Running the program again overwrites static figures with the reproducible reference experiment; interactive saves likewise overwrite files with the same output name.
+The generated files are placed **beside `main.py`**. Running the program again overwrites the four static figures and the **two static convergence data files** with the same deterministic reference inputs. Interactive output is saved separately and is overwritten only by its corresponding save/analyze action.
 
-## Experiment 1 — Two constructions of one curve (Part 1.1)
+## Experiment 1 — Two constructions of one curve
 
 ### Goal
 
@@ -117,20 +117,20 @@ The program evaluates the *x* and *y* coordinates separately inside `cubic_bezie
 
 The static experiment uses a strongly curved control polygon covering most of the 800 × 600 canvas:
 
-| Control point | x | y |
-| --- | ---: | ---: |
-| $b_0$ | 80 | 450 |
-| $b_1$ | 180 | 100 |
-| $b_2$ | 620 | 100 |
-| $b_3$ | 720 | 450 |
+| Control point |    x |    y |
+| ------------- | ---: | ---: |
+| $b_0$         |   80 |  450 |
+| $b_1$         |  180 |  100 |
+| $b_2$         |  620 |  100 |
+| $b_3$         |  720 |  450 |
 
 For the **shallow depth $d=2$**, the four line segments touch the Bézier curve at the endpoints of the four sub-curves, but visibly depart from the orange curve between those points.
 
-![Part 1.1: Cubic formula and midpoint-construction polyline, depth 2](part1_1_overlay.png)
+![Cubic formula and midpoint-construction polyline, depth 2](part1_1_overlay.png)
 
 **Observation:** The two methods agree on the mathematical curve, but the midpoint **polyline** is only a finite-depth approximation. Increasing the subdivision depth reduces the visible difference without changing the original four control points.
 
-## Experiment 2 — Convergence and error measurement (Part 1.2)
+## Experiment 2 — Convergence and error measurement
 
 ### Goal and required measurement direction
 
@@ -173,19 +173,21 @@ For the fixed reference curve, the resulting sample count was **16,001 points**,
 The following values were regenerated by executing the included algorithms with the fixed control points listed in Experiment 1. The last row is the **first depth** satisfying $E_d<0.5$ px.
 
 | Depth $d$ | Polyline segments | Max. error $E_d$ (px) | Reduction factor $E_{d-1}/E_d$ |
-| ---: | ---: | ---: | ---: |
-| 0 | 1 | 262.500000 | — |
-| 1 | 2 | 71.113096 | 3.6913 |
-| 2 | 4 | 18.983575 | 3.7460 |
-| 3 | 8 | 4.870718 | 3.8975 |
-| 4 | 16 | 1.229921 | 3.9602 |
-| **5** | **32** | **0.308761** | **3.9834** |
+| --------: | ----------------: | --------------------: | -----------------------------: |
+|         0 |                 1 |            262.500000 |                              — |
+|         1 |                 2 |             71.113096 |                         3.6913 |
+|         2 |                 4 |             18.983575 |                         3.7460 |
+|         3 |                 8 |              4.870718 |                         3.8975 |
+|         4 |                16 |              1.229921 |                         3.9602 |
+|     **5** |            **32** |          **0.308761** |                     **3.9834** |
 
 **Threshold conclusion:** the **minimum qualifying subdivision depth is 5** because $E_4=1.229921$ px is not below 0.5 px, whereas $E_5=0.308761$ px is.
 
-![Part 1.2: Error by subdivision depth with the 0.5-pixel threshold](part1_2_convergence.png)
+**Data provenance:** The table is from the fixed control points $(80,450)$, $(180,100)$, $(620,100)$, and $(720,450)$. The static run writes the per-depth measurements to `part1_2_static_convergence.csv` and their metadata and results to `part1_2_static_analysis.json`. The interactive **Analyze** action instead uses the current control points, writing `part1_2_interactive_convergence.csv`, `part1_2_interactive_convergence.png`, and `part1_2_analysis.json`. These two datasets may have different errors because they represent different input curves; neither should be used as a substitute for the other.
 
-### Answers to the convergence questions
+![Error by subdivision depth with the 0.5-pixel threshold](part1_2_convergence.png)
+
+### Interpretation of convergence results
 
 **Q1. What rule do the errors follow when depth increases by one?**
 
@@ -207,7 +209,7 @@ No. The observed reduction factor is **3.6913** from depth 0 to 1, **3.7460** fr
 
 **Scope note:** the **implemented** `midpoint_polyline()` uses a uniform recursion depth; adaptive per-segment stopping is an opportunity for future work, **not a feature claimed in this version**.
 
-## Experiment 3 — Smooth and corner joins (Part 1.3)
+## Experiment 3 — Smooth and corner joins
 
 ### Goal: a three-segment open path
 
@@ -226,7 +228,7 @@ Segment 3: (540,280) → (670,320) → (660,500) → (730,350)
 
 Each row shows the four **control points** of one cubic, **not** four points connected by a plotted polyline. The static figure plots the Bézier samples computed from these control points; the interactive editor also displays their control polygons.
 
-![Part 1.3: Three connected cubic Bézier segments with smooth and corner joins](part1_3_three_segments.png)
+![Three connected cubic Bézier segments with smooth and corner joins](part1_3_three_segments.png)
 
 **One-line explanation of the corner:** The second join is a corner because the incoming and outgoing direction lines are **not collinear**, producing different tangent directions at the shared endpoint.
 
@@ -234,7 +236,7 @@ For example, the incoming and outgoing handle vectors there are $(50,130)$ and $
 
 ### Equal-length versus unequal-length direction lines
 
-Chapter 4 describes a smooth join using **collinear** control points with **equal-length** direction lines. We isolate the length condition while **keeping both direction lines collinear**.
+A commonly taught sufficient condition for a C¹ smooth join is **collinear** direction handles with **equal lengths**. We isolate the length condition while **keeping both direction lines collinear**.
 
 Let $P_3=Q_0=J$ be the shared point between the first and second cubic. Their endpoint derivatives are:
 
@@ -244,14 +246,14 @@ $$
 
 The experiments keep the join at $J=(280,310)$ and the incoming direction control point at $P_2=(220,310)$.
 
-| Comparison | Outgoing direction point $Q_1$ | Incoming handle | Outgoing handle | Continuity at the join |
-| --- | --- | ---: | ---: | --- |
-| **Equal length** | (340, 310) | 60 px | 60 px | **C¹** (and G¹) |
-| **Unequal length** | (460, 310) | 60 px | 180 px | **G¹**, but **not C¹** |
+| Comparison         | Outgoing direction point $Q_1$ | Incoming handle | Outgoing handle | Continuity at the join |
+| ------------------ | ------------------------------ | --------------: | --------------: | ---------------------- |
+| **Equal length**   | (340, 310)                     |           60 px |           60 px | **C¹** (and G¹)        |
+| **Unequal length** | (460, 310)                     |           60 px |          180 px | **G¹**, but **not C¹** |
 
-![Part 1.3: Equal versus unequal direction-line lengths while preserving collinearity](part1_3_equal_vs_unequal.png)
+![Equal versus unequal direction-line lengths while preserving collinearity](part1_3_equal_vs_unequal.png)
 
-### Answers to the join questions
+### Interpretation of join continuity
 
 **Q1. Does the unequal-length join still look smooth?**
 
@@ -278,7 +280,7 @@ In short, **collinearity** is enough for a visually smooth tangent transition, w
 6. Click **Analyze** to evaluate the **currently displayed** curve using the Experiment 2 measurement and save PNG/CSV/JSON results.
 7. Click **Joins Editor** to open Experiment 3's independent editor.
 
-### Secondary window — `Part 1.3 - Joins Editor`
+### Secondary window — joins editor
 
 - Drag any control point to reshape the three connected cubic segments.
 - At the **smooth join**, dragging either adjacent direction handle updates the opposite handle to preserve the selected length ratio and collinearity.
@@ -295,10 +297,12 @@ In short, **collinearity** is enough for a visually smooth tangent transition, w
 
 ```text
 Interactive-Bezier-Laboratory/
-├── main.py                              # One executable source for all Part 1 experiments
+├── main.py                              # One executable source for all three experiments
 ├── README.md                            # This project guide and experiment report
 ├── part1_1_overlay.png                  # Auto-generated static comparison
-├── part1_2_convergence.png              # Auto-generated static baseline
+├── part1_2_convergence.png              # Auto-generated static baseline plot
+├── part1_2_static_convergence.csv        # Auto-generated static baseline measurements
+├── part1_2_static_analysis.json          # Auto-generated static baseline metadata and results
 ├── part1_3_three_segments.png           # Auto-generated open-path figure
 ├── part1_3_equal_vs_unequal.png         # Auto-generated side-by-side comparison
 ├── part1_1_control_points.json          # Created by Save Points
@@ -312,48 +316,55 @@ Interactive-Bezier-Laboratory/
 └── part1_3_joins_unequal.json           # Created by Save Joins in Unequal mode
 ```
 
-The tree above shows **possible generated files**; interactive outputs appear only after the corresponding button is used. The four static PNGs are created automatically when `python main.py` starts. Keep the four static PNG files alongside this README in the GitHub repository so its embedded comparison figures render immediately.
+The tree above shows **possible generated files**; interactive outputs appear only after the corresponding button is used. The four static PNGs and the two static convergence data files are produced automatically when `python main.py` starts. Keep the four static PNG files alongside this README in the repository so its embedded comparison figures render immediately. For independent numerical verification, also keep the static CSV and JSON files.
 
 ### Reproduction checklist
 
-| Test | Action | Expected result |
-| --- | --- | --- |
-| Static overlay | Run `python main.py` | `part1_1_overlay.png`, clearly different at depth 2 |
-| Fine formula sampling | Read the terminal's Part 1.2 baseline output | 16,001 points; max spacing approximately 0.068248 px (**< 0.1 px**) |
-| Convergence threshold | Read the baseline depth table | First error **< 0.5 px** occurs at **depth 5** |
-| Error pattern | Compare reduction factors | Approaches a fourfold reduction for deeper subdivisions |
-| Open path | Open `part1_3_three_segments.png` | One smooth join and one corner across three segments |
-| Handle-length isolation | Open `part1_3_equal_vs_unequal.png` | 60/60 px versus 60/180 px, aligned in the same direction |
-| Interactive construction | Place and drag four points | Both curve and polyline update |
-| Save/load | Save, reset, then load the points | Control points and depth restored |
-| Interactive convergence | Click **Analyze** after creating four points | Result PNG, CSV, and JSON reflect the current curve |
-| Interactive joins | Switch to Unequal, then save; switch to Equal, then save | Separate PNG/JSON pairs for each mode |
+To regenerate only the fixed-reference convergence results without opening the interactive editor, run:
+
+```powershell
+python -c "import main; main.run_part1_2_static()"
+```
+
+This command updates the **static** convergence PNG, CSV, and JSON only; it leaves any saved interactive measurements untouched.
+
+| Test                     | Action                                                   | Expected result                                              |
+| ------------------------ | -------------------------------------------------------- | ------------------------------------------------------------ |
+| Static overlay           | Run `python main.py`                                     | `part1_1_overlay.png`, clearly different at depth 2          |
+| Fine formula sampling    | Read the terminal's static baseline output               | 16,001 points; max spacing approximately 0.068248 px (**< 0.1 px**) |
+| Convergence threshold    | Read the baseline depth table                            | First error **< 0.5 px** occurs at **depth 5**               |
+| Static data export       | Run `python -c "import main; main.run_part1_2_static()"` | `part1_2_static_convergence.csv` and `part1_2_static_analysis.json` correspond to the fixed control points |
+| Error pattern            | Compare reduction factors                                | Approaches a fourfold reduction for deeper subdivisions      |
+| Open path                | Open `part1_3_three_segments.png`                        | One smooth join and one corner across three segments         |
+| Handle-length isolation  | Open `part1_3_equal_vs_unequal.png`                      | 60/60 px versus 60/180 px, aligned in the same direction     |
+| Interactive construction | Place and drag four points                               | Both curve and polyline update                               |
+| Save/load                | Save, reset, then load the points                        | Control points and depth restored                            |
+| Interactive convergence  | Click **Analyze** after creating four points             | Result PNG, CSV, and JSON reflect the current curve          |
+| Interactive joins        | Switch to Unequal, then save; switch to Equal, then save | Separate PNG/JSON pairs for each mode                        |
 
 ### Numerical interpretation and limitations
 
 - Distances are reported in **canvas pixel-coordinate units**, not measured display-monitor pixels or physical lengths.
 - The convergence metric is a **sampled** one-directional maximum. The implementation enforces consecutive formula-sample spacing below 0.1 px; it does not claim an exact symbolic Hausdorff distance.
-- The reference error table uses **the fixed static control points**. Clicking **Analyze** with different user-generated points will legitimately produce different values and possibly a different minimum depth.
+- The reference error table uses **the fixed static control points** and matches `part1_2_static_convergence.csv` / `part1_2_static_analysis.json`. Clicking **Analyze** with different user-generated points will legitimately produce different values and possibly a different minimum depth. Interactive results belong to the `part1_2_interactive_*` files and `part1_2_analysis.json`.
 - The static experiment is deterministic with the same input points and numerical environment. Differences in plot appearance may occur with other Matplotlib versions or system fonts.
 - If a smooth join handle is dragged to exactly coincide with its join point, its tangent vector becomes zero; the usual nonzero-handle **G¹/C¹ distinction** needs special care in this degenerate case.
 
-## Coursework checklist and conclusions
+## Verification checklist and conclusions
 
-This section maps the laboratory to the **Part 1** questions while keeping the rest of the repository useful as a stand-alone experiment.
+The following checks connect the implemented methods to reproducible evidence.
 
-| Part 1 question | Required evidence and explanation | Where to find it |
-| --- | --- | --- |
-| **1.1** | Implement cubic formula and recursive midpoint construction; show a visibly different shallow-depth overlay | [Experiment 1](#experiment-1--two-constructions-of-one-curve-part-11), `part1_1_overlay.png`, `cubic_bezier()`, `split_bezier_half()`, `midpoint_polyline()` |
-| **1.2** | Sample spacing below 0.1 px; one-way nearest-*segment* error by depth; first error below 0.5 px; ratio behavior; midpoint benefit | [Experiment 2](#experiment-2--convergence-and-error-measurement-part-12), measured table, `part1_2_convergence.png`, `analyze_bezier_convergence()` |
-| **1.3** | Three-segment open path, smooth and corner joins, one-line corner explanation, equal/unequal side-by-side comparison, visual smoothness and purpose of equal length | [Experiment 3](#experiment-3--smooth-and-corner-joins-part-13), `part1_3_three_segments.png`, `part1_3_equal_vs_unequal.png` |
+| Experiment                  | Verification target                                          | Where to find it                                             |
+| --------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **Curve construction**      | Independently compute the cubic formula and recursive midpoint construction; compare their shallow-depth overlay | [Experiment 1](#experiment-1--two-constructions-of-one-curve), `part1_1_overlay.png`, `cubic_bezier()`, `split_bezier_half()`, `midpoint_polyline()` |
+| **Convergence measurement** | Sample spacing below 0.1 px; one-way nearest-*segment* error by depth; first error below 0.5 px; reduction behavior; local-refinement potential | [Experiment 2](#experiment-2--convergence-and-error-measurement), measured table, `part1_2_convergence.png`, `part1_2_static_convergence.csv`, `part1_2_static_analysis.json`, `analyze_bezier_convergence()` |
+| **Curve continuity**        | Three-segment open path, smooth and corner joins, equal/unequal side-by-side comparison, geometric and parametric continuity | [Experiment 3](#experiment-3--smooth-and-corner-joins), `part1_3_three_segments.png`, `part1_3_equal_vs_unequal.png` |
 
 **Main findings:**
 
 1. The cubic formula and recursive midpoint construction represent the same cubic Bézier geometry; finite-depth endpoint polylines are approximations whose error decreases with further subdivision.
 2. For the reference curve, sampled maximum error fell from **262.500000 px (depth 0)** to **0.308761 px (depth 5)**, crossing the **0.5 px** threshold for the first time at **depth 5**; deeper observed ratios approach **4**.
 3. A join with unequal yet collinear direction handles can remain **visually smooth (G¹)**. Equal lengths provide the stronger **C¹** match of first derivative vectors.
-
-**Course submission note:** This README is a Markdown report and GitHub project guide. If the course requires a **PDF**, export the fully rendered Markdown (including all embedded figures and measured tables) to PDF and submit it with the source as directed by the instructor. A GitHub link alone is **not** a substitute for the required course submission format.
 
 ## Implementation boundaries and future work
 
@@ -362,3 +373,7 @@ This section maps the laboratory to the **Part 1** questions while keeping the r
 - The implementation uses **uniform-depth** subdivision. Flatness-guided **adaptive subdivision** is a logical next experiment but is not implemented here.
 - The repository currently documents **Bézier geometry and joins**. Pixel-level filling, winding rules, and anti-aliasing are outside the scope of this milestone.
 - The work is organized as a transparent progression from static mathematical tests to interactive visualization, with reference datasets kept available for independent verification.
+
+---
+
+**Concepts:** cubic Bézier curves, Bernstein polynomials, de Casteljau subdivision, point-to-segment distance, G¹ geometric continuity, and C¹ parametric continuity.

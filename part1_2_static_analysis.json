@@ -1,0 +1,67 @@
+{
+  "experiment": "static_baseline",
+  "control_points": [
+    [
+      80,
+      450
+    ],
+    [
+      180,
+      100
+    ],
+    [
+      620,
+      100
+    ],
+    [
+      720,
+      450
+    ]
+  ],
+  "canvas": {
+    "width": 800,
+    "height": 600
+  },
+  "sample_points": 16001,
+  "max_sample_spacing_px": 0.06824818118787328,
+  "error_threshold_px": 0.5,
+  "minimum_depth": 5,
+  "results": [
+    {
+      "depth": 0,
+      "segments": 1,
+      "error": 262.5,
+      "ratio": null
+    },
+    {
+      "depth": 1,
+      "segments": 2,
+      "error": 71.11309572383034,
+      "ratio": 3.691303230834247
+    },
+    {
+      "depth": 2,
+      "segments": 4,
+      "error": 18.98357543412793,
+      "ratio": 3.746032772940444
+    },
+    {
+      "depth": 3,
+      "segments": 8,
+      "error": 4.870718358216875,
+      "ratio": 3.897489864529478
+    },
+    {
+      "depth": 4,
+      "segments": 16,
+      "error": 1.2299206129213183,
+      "ratio": 3.9601892244475048
+    },
+    {
+      "depth": 5,
+      "segments": 32,
+      "error": 0.3087612423282259,
+      "ratio": 3.9834034985966995
+    }
+  ]
+}

@@ -296,14 +296,66 @@ def run_part1_1_static():
     print("Part 1.1 static comparison saved.")
 
 
+
 def run_part1_2_static():
-    """固定初始控制點的基準收斂實驗。"""
-    results, count, spacing = analyze_bezier_convergence(STATIC_CONTROL_POINTS)
-    print_convergence_results(results, count, spacing, "Part 1.2 - Static Baseline")
-    fig = make_convergence_figure(results, "Part 1.2 - Static Convergence")
-    fig.savefig(OUTPUT_DIR / "part1_2_convergence.png", dpi=150, bbox_inches="tight")
+    """Run and save the reproducible static convergence baseline."""
+    results, count, spacing = analyze_bezier_convergence(
+        STATIC_CONTROL_POINTS
+    )
+
+    print_convergence_results(
+        results, count, spacing, "Part 1.2 - Static Baseline"
+    )
+
+    # Save static baseline results separately from interactive results.
+    csv_path = OUTPUT_DIR / "part1_2_static_convergence.csv"
+    json_path = OUTPUT_DIR / "part1_2_static_analysis.json"
+
+    with csv_path.open("w", newline="", encoding="utf-8-sig") as file:
+        writer = csv.writer(file)
+        writer.writerow([
+            "Depth", "Segments", "Maximum Error (px)",
+            "Reduction Ratio"
+        ])
+        for row in results:
+            writer.writerow([
+                row["depth"],
+                row["segments"],
+                f"{row['error']:.9f}",
+                "" if row["ratio"] is None else f"{row['ratio']:.6f}",
+            ])
+
+    last = results[-1]
+    analysis_data = {
+        "experiment": "static_baseline",
+        "control_points": [p.copy() for p in STATIC_CONTROL_POINTS],
+        "canvas": {"width": WIDTH, "height": HEIGHT},
+        "sample_points": count,
+        "max_sample_spacing_px": spacing,
+        "error_threshold_px": 0.5,
+        "minimum_depth": (
+            last["depth"] if last["error"] < 0.5 else None
+        ),
+        "results": results,
+    }
+
+    with json_path.open("w", encoding="utf-8") as file:
+        json.dump(analysis_data, file, indent=2, ensure_ascii=False)
+
+    fig = make_convergence_figure(
+        results, "Part 1.2 - Static Convergence"
+    )
+    fig.savefig(
+        OUTPUT_DIR / "part1_2_convergence.png",
+        dpi=150,
+        bbox_inches="tight",
+    )
     plt.close(fig)
+
+    print(f"Static CSV saved: {csv_path}")
+    print(f"Static JSON saved: {json_path}")
     print("Part 1.2 static convergence graph saved.")
+
 
 
 def draw_part1_3_three_segments(seg1, seg2, seg3):
